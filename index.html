@@ -5,422 +5,82 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0a1628">
 <meta name="description" content="Radio Mil Horas — Escuchá en vivo">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Mil Horas">
 <title>Radio Mil Horas</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  margin:0;
+  background:#0a1628;
+  color:white;
+  font-family: Arial;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:100vh;
+}
 
-  :root {
-    --navy:    #0a1628;
-    --navy2:   #0f1f3d;
-    --navy3:   #172a50;
-    --blue:    #1a5fc8;
-    --blue2:   #2176ff;
-    --sky:     #5ba4f5;
-    --white:   #f0f4ff;
-    --muted:   #7a91b8;
-    --glass:   rgba(255,255,255,0.06);
-    --glass2:  rgba(255,255,255,0.12);
-  }
+.card {
+  background:#111f3a;
+  padding:30px;
+  border-radius:20px;
+  text-align:center;
+}
 
-  html, body {
-    height: 100%;
-    background: var(--navy);
-    color: var(--white);
-    font-family: 'DM Sans', sans-serif;
-    overflow: hidden;
-  }
+button {
+  font-size:20px;
+  padding:15px 25px;
+  border:none;
+  border-radius:50px;
+  background:#2176ff;
+  color:white;
+  cursor:pointer;
+}
 
-  /* Animated background */
-  .bg {
-    position: fixed; inset: 0; z-index: 0;
-    background: var(--navy);
-    overflow: hidden;
-  }
-  .bg::before {
-    content: '';
-    position: absolute;
-    width: 600px; height: 600px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(33,118,255,0.18) 0%, transparent 70%);
-    top: -150px; left: -150px;
-    animation: drift1 12s ease-in-out infinite alternate;
-  }
-  .bg::after {
-    content: '';
-    position: absolute;
-    width: 500px; height: 500px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(91,164,245,0.12) 0%, transparent 70%);
-    bottom: -100px; right: -100px;
-    animation: drift2 15s ease-in-out infinite alternate;
-  }
-  @keyframes drift1 { to { transform: translate(80px, 60px); } }
-  @keyframes drift2 { to { transform: translate(-60px, -80px); } }
-
-  /* Grid of dots */
-  .dots {
-    position: fixed; inset: 0; z-index: 0;
-    background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
-    background-size: 32px 32px;
-  }
-
-  /* Main layout */
-  .app {
-    position: relative; z-index: 1;
-    height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 32px 24px;
-    gap: 0;
-  }
-
-  /* Header */
-  .header {
-    text-align: center;
-    margin-bottom: 40px;
-    animation: fadeUp 0.8s ease both;
-  }
-  .tag {
-    display: inline-block;
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--sky);
-    background: rgba(91,164,245,0.12);
-    border: 1px solid rgba(91,164,245,0.25);
-    border-radius: 20px;
-    padding: 4px 14px;
-    margin-bottom: 16px;
-  }
-  h1 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(52px, 14vw, 88px);
-    line-height: 0.9;
-    letter-spacing: 0.02em;
-    color: var(--white);
-  }
-  h1 span {
-    display: block;
-    background: linear-gradient(135deg, var(--sky), var(--blue2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  /* Player card */
-  .card {
-    width: 100%;
-    max-width: 380px;
-    background: var(--glass);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--glass2);
-    border-radius: 24px;
-    padding: 32px 28px;
-    animation: fadeUp 0.8s 0.15s ease both;
-  }
-
-  /* Visualizer bars */
-  .viz {
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    gap: 4px;
-    height: 48px;
-    margin-bottom: 28px;
-  }
-  .bar {
-    width: 4px;
-    border-radius: 2px;
-    background: linear-gradient(to top, var(--blue2), var(--sky));
-    height: 6px;
-    transform-origin: bottom;
-    transition: height 0.1s;
-  }
-  .bar.active { animation: bounce var(--d, 0.8s) ease-in-out infinite alternate; }
-  .bar:nth-child(1)  { --d: 0.6s; }
-  .bar:nth-child(2)  { --d: 0.8s; }
-  .bar:nth-child(3)  { --d: 0.5s; }
-  .bar:nth-child(4)  { --d: 0.9s; }
-  .bar:nth-child(5)  { --d: 0.7s; }
-  .bar:nth-child(6)  { --d: 1.0s; }
-  .bar:nth-child(7)  { --d: 0.6s; }
-  .bar:nth-child(8)  { --d: 0.75s; }
-  .bar:nth-child(9)  { --d: 0.55s; }
-  .bar:nth-child(10) { --d: 0.85s; }
-  .bar:nth-child(11) { --d: 0.65s; }
-  .bar:nth-child(12) { --d: 0.95s; }
-  @keyframes bounce {
-    from { height: 6px; opacity: 0.5; }
-    to   { height: var(--h, 36px); opacity: 1; }
-  }
-
-  /* Status */
-  .status-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 24px;
-  }
-  .status {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    color: var(--muted);
-  }
-  .dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--muted);
-    transition: background 0.3s;
-  }
-  .dot.live {
-    background: #22c55e;
-    box-shadow: 0 0 0 3px rgba(34,197,94,0.2);
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse { 50% { box-shadow: 0 0 0 6px rgba(34,197,94,0); } }
-
-  /* Volume */
-  .vol-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .vol-icon { font-size: 14px; color: var(--muted); }
-  input[type=range] {
-    flex: 1;
-    height: 4px;
-    -webkit-appearance: none;
-    appearance: none;
-    background: var(--glass2);
-    border-radius: 2px;
-    outline: none;
-    cursor: pointer;
-  }
-  input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 14px; height: 14px;
-    border-radius: 50%;
-    background: var(--sky);
-    cursor: pointer;
-  }
-
-  /* Play button */
-  .play-wrap {
-    display: flex;
-    justify-content: center;
-    margin: 28px 0 0;
-  }
-  .play-btn {
-    width: 72px; height: 72px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    background: linear-gradient(135deg, var(--blue2), var(--sky));
-    color: white;
-    font-size: 26px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.15s, box-shadow 0.15s;
-    box-shadow: 0 8px 32px rgba(33,118,255,0.4);
-    position: relative;
-  }
-  .play-btn:active { transform: scale(0.93); }
-  .play-btn:hover  { transform: scale(1.05); box-shadow: 0 12px 40px rgba(33,118,255,0.55); }
-  .play-btn .ring {
-    position: absolute; inset: -6px;
-    border-radius: 50%;
-    border: 2px solid rgba(91,164,245,0.3);
-    animation: none;
-  }
-  .play-btn.playing .ring {
-    animation: ringpulse 2s ease-out infinite;
-  }
-  @keyframes ringpulse {
-    0%   { inset: -6px; opacity: 0.6; }
-    100% { inset: -20px; opacity: 0; }
-  }
-
-  /* Footer */
-  .footer {
-    margin-top: 32px;
-    font-size: 11px;
-    color: var(--muted);
-    text-align: center;
-    letter-spacing: 0.05em;
-    animation: fadeUp 0.8s 0.3s ease both;
-  }
-  .install-hint {
-    margin-top: 10px;
-    font-size: 11px;
-    color: rgba(91,164,245,0.6);
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  /* Loading spinner inside button */
-  .spinner {
-    width: 24px; height: 24px;
-    border: 3px solid rgba(255,255,255,0.3);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    display: none;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
+.status {
+  margin-top:15px;
+}
 </style>
 </head>
+
 <body>
-<div class="bg"></div>
-<div class="dots"></div>
 
-<div class="app">
-
-  <div class="header">
-    <div class="tag">📻 En vivo</div>
-    <h1>Radio<span>Mil Horas</span></h1>
-  </div>
-
-  <div class="card">
-    <!-- Visualizer -->
-    <div class="viz" id="viz">
-      <div class="bar" style="--h:20px"></div>
-      <div class="bar" style="--h:38px"></div>
-      <div class="bar" style="--h:28px"></div>
-      <div class="bar" style="--h:44px"></div>
-      <div class="bar" style="--h:32px"></div>
-      <div class="bar" style="--h:48px"></div>
-      <div class="bar" style="--h:24px"></div>
-      <div class="bar" style="--h:40px"></div>
-      <div class="bar" style="--h:30px"></div>
-      <div class="bar" style="--h:36px"></div>
-      <div class="bar" style="--h:22px"></div>
-      <div class="bar" style="--h:34px"></div>
-    </div>
-
-    <!-- Status + volume -->
-    <div class="status-row">
-      <div class="status">
-        <div class="dot" id="dot"></div>
-        <span id="statusText">Listo para reproducir</span>
-      </div>
-    </div>
-    <div class="vol-row">
-      <span class="vol-icon">🔈</span>
-      <input type="range" id="vol" min="0" max="1" step="0.01" value="0.8">
-      <span class="vol-icon">🔊</span>
-    </div>
-
-    <!-- Play button -->
-    <div class="play-wrap">
-      <button class="play-btn" id="playBtn" onclick="togglePlay()" aria-label="Reproducir">
-        <div class="ring"></div>
-        <span id="btnIcon">▶</span>
-        <div class="spinner" id="spinner"></div>
-      </button>
-    </div>
-  </div>
-
-  <div class="footer">
-    Radio Mil Horas · Transmisión en vivo
-    <div class="install-hint" id="installHint"></div>
-  </div>
+<div class="card">
+  <h1>Radio Mil Horas</h1>
+  <button onclick="togglePlay()">▶</button>
+  <div class="status" id="status">Listo</div>
 </div>
 
-<audio id="audio" preload="none"></audio>
+<audio id="audio"></audio>
 
 <script>
-const STREAM = 'http://icecast-production-9180.up.railway.app:80/radio.mp3';
-const audio   = document.getElementById('audio');
-const btn     = document.getElementById('playBtn');
-const icon    = document.getElementById('btnIcon');
-const spinner = document.getElementById('spinner');
-const dot     = document.getElementById('dot');
-const statusT = document.getElementById('statusText');
-const bars    = document.querySelectorAll('.bar');
-const volSlider = document.getElementById('vol');
+const STREAM = 'https://icecast-production-9180.up.railway.app/radio.mp3';
+
+const audio = document.getElementById("audio");
+const status = document.getElementById("status");
 
 let playing = false;
-
-audio.volume = parseFloat(volSlider.value);
-volSlider.addEventListener('input', () => { audio.volume = parseFloat(volSlider.value); });
-
-function setLoading() {
-  icon.style.display = 'none';
-  spinner.style.display = 'block';
-  dot.className = 'dot';
-  statusT.textContent = 'Conectando...';
-  bars.forEach(b => b.classList.remove('active'));
-}
-function setPlaying() {
-  icon.style.display = 'block';
-  spinner.style.display = 'none';
-  icon.textContent = '⏸';
-  btn.classList.add('playing');
-  dot.className = 'dot live';
-  statusT.textContent = '● EN VIVO';
-  bars.forEach(b => b.classList.add('active'));
-  playing = true;
-}
-function setStopped() {
-  icon.style.display = 'block';
-  spinner.style.display = 'none';
-  icon.textContent = '▶';
-  btn.classList.remove('playing');
-  dot.className = 'dot';
-  statusT.textContent = 'Listo para reproducir';
-  bars.forEach(b => b.classList.remove('active'));
-  playing = false;
-}
-function setError() {
-  icon.style.display = 'block';
-  spinner.style.display = 'none';
-  icon.textContent = '▶';
-  btn.classList.remove('playing');
-  dot.className = 'dot';
-  statusT.textContent = 'Sin señal — reintentá';
-  bars.forEach(b => b.classList.remove('active'));
-  playing = false;
-}
 
 function togglePlay() {
   if (playing) {
     audio.pause();
-    audio.src = '';
-    setStopped();
+    audio.src = "";
+    status.textContent = "Detenido";
+    playing = false;
   } else {
-    setLoading();
+    status.textContent = "Conectando...";
     audio.src = STREAM;
-    audio.play().then(setPlaying).catch(setError);
+
+    audio.play()
+      .then(() => {
+        status.textContent = "EN VIVO";
+        playing = true;
+      })
+      .catch(() => {
+        status.textContent = "Sin señal";
+      });
   }
 }
-
-audio.addEventListener('error', setError);
-audio.addEventListener('stalled', () => { statusT.textContent = 'Reconectando...'; });
-
-// PWA install hint
-window.addEventListener('beforeinstallprompt', (e) => {
-  document.getElementById('installHint').textContent = '💡 Tocá "Agregar a pantalla de inicio" para instalarla como app';
-});
-
-// iOS hint
-const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-if (isIOS) {
-  document.getElementById('installHint').textContent = '💡 En Safari: compartir → "Agregar a pantalla de inicio"';
-}
 </script>
+
 </body>
 </html>
